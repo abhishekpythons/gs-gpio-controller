@@ -1,0 +1,25 @@
+[Unit]
+Description=GPIO Controller Backend API
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/gpio-controller/backend
+Environment="PATH=/home/pi/.local/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/usr/bin/python3 /home/pi/gpio-controller/backend/main.py
+Restart=always
+RestartSec=10
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gpio-controller
+
+[Install]
+WantedBy=multi-user.target
