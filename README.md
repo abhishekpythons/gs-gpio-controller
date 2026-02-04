@@ -82,8 +82,17 @@ Edit `backend/main.py` and update:
 # IMPORTANT: Change this in production!
 SECRET_KEY = "your-secret-key-change-this-in-production"
 
-# GPIO pins you want to control (BCM numbering)
-GPIO_PINS = [17, 18, 27, 22, 23, 24, 25, 4]
+# GPIO pins with device names (BCM numbering)
+GPIO_PINS = {
+    35: "Intel NuC PC",
+    37: "SDR RF FrontEnd", 
+    33: "G5500 Rotator",
+    31: "VHF SSPA",
+    36: "UHF SSPA",
+    38: "Cooling FAN",
+    40: "Light",
+    29: "Spare"
+}
 ```
 
 Edit `frontend/index.html` and update the API URL:
@@ -226,25 +235,31 @@ When you first run the application, a default admin account is created:
 
 ## GPIO Pin Mapping (BCM Mode)
 
-The application uses BCM (Broadcom) pin numbering:
+The application uses BCM (Broadcom) pin numbering with named devices:
 
 ```
-Default Pins: 17, 18, 27, 22, 23, 24, 25, 4
+Configured Devices:
+- GPIO 35: Intel NuC PC
+- GPIO 37: SDR RF FrontEnd
+- GPIO 33: G5500 Rotator
+- GPIO 31: VHF SSPA
+- GPIO 36: UHF SSPA
+- GPIO 38: Cooling FAN
+- GPIO 40: Light
+- GPIO 29: Spare
 
 Physical Pin Layout (for reference):
-3V3  (1) (2)  5V
-GP2  (3) (4)  5V
-GP3  (5) (6)  GND
-GP4  (7) (8)  GP14
-GND  (9) (10) GP15
-GP17 (11) (12) GP18
-GP27 (13) (14) GND
-GP22 (15) (16) GP23
-3V3  (17) (18) GP24
-GP10 (19) (20) GND
-GP9  (21) (22) GP25
-GP11 (23) (24) GP8
-GND  (25) (26) GP7
+GPIO 35 → Pin 19 (Physical)
+GPIO 37 → Pin 26 (Physical)
+GPIO 33 → Pin 13 (Physical)
+GPIO 31 → Pin 28 (Physical)
+GPIO 36 → Pin 16 (Physical)
+GPIO 38 → Pin 20 (Physical)
+GPIO 40 → Pin 21 (Physical)
+GPIO 29 → Pin 5  (Physical)
+
+Note: These are BCM GPIO numbers, not physical pin numbers.
+Use 'gpio readall' on your Raspberry Pi to see the complete pinout.
 ```
 
 ## Security Considerations

@@ -178,7 +178,7 @@ class GPIOControllerTester:
             self.print_test("GPIO control", False, "No authentication token")
             return False
             
-        test_pin = 17
+        test_pin = 35  # Intel NuC PC
         
         try:
             # Turn pin ON
@@ -190,7 +190,7 @@ class GPIOControllerTester:
             )
             
             if response.status_code == 200:
-                self.print_test("GPIO control (ON)", True, f"Pin {test_pin} turned ON")
+                self.print_test("GPIO control (ON)", True, f"Pin {test_pin} (Intel NuC PC) turned ON")
                 
                 # Turn pin OFF
                 response = requests.post(
@@ -201,7 +201,7 @@ class GPIOControllerTester:
                 )
                 
                 if response.status_code == 200:
-                    self.print_test("GPIO control (OFF)", True, f"Pin {test_pin} turned OFF")
+                    self.print_test("GPIO control (OFF)", True, f"Pin {test_pin} (Intel NuC PC) turned OFF")
                     return True
                 else:
                     self.print_test("GPIO control (OFF)", False, f"Status: {response.status_code}")

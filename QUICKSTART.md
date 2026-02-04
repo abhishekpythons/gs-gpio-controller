@@ -65,7 +65,17 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"
 **REQUIRED**: Update GPIO pins if needed (around line 40):
 
 ```python
-GPIO_PINS = [17, 18, 27, 22, 23, 24, 25, 4]
+# GPIO pins with device names (BCM numbering)
+GPIO_PINS = {
+    35: "Intel NuC PC",
+    37: "SDR RF FrontEnd", 
+    33: "G5500 Rotator",
+    31: "VHF SSPA",
+    36: "UHF SSPA",
+    38: "Cooling FAN",
+    40: "Light",
+    29: "Spare"
+}
 ```
 
 Save and exit (Ctrl+X, Y, Enter)

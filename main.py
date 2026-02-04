@@ -76,8 +76,20 @@ else:
 # Initialize GPIO
 gpio.setmode(gpio.BCM)
 
-# Default GPIO pins configuration
-GPIO_PINS = [17, 18, 27, 22, 23, 24, 25, 4]  # Configurable GPIO pins
+# GPIO pins configuration with device names
+GPIO_PINS = {
+    35: "Intel NuC PC",
+    37: "SDR RF FrontEnd", 
+    33: "G5500 Rotator",
+    31: "VHF SSPA",
+    36: "UHF SSPA",
+    38: "Cooling FAN",
+    40: "Light",
+    29: "Spare"
+}
+
+# Get list of pin numbers for compatibility
+GPIO_PIN_NUMBERS = list(GPIO_PINS.keys())
 
 # WebSocket connection manager
 class ConnectionManager:
@@ -142,7 +154,7 @@ def init_db():
     ''')
     
     # Initialize GPIO pins
-    for pin in GPIO_PINS:
+    for pin in GPIO_PINS.keys():
         cursor.execute('INSERT OR IGNORE INTO gpio_state (pin, state) VALUES (?, ?)', (pin, 0))
         gpio.setup(pin, gpio.OUT)
         gpio.output(pin, gpio.LOW)
@@ -312,7 +324,11 @@ async def get_pins(current_user: dict = Depends(verify_token)):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT pin, state FROM gpio_state ORDER BY pin")
-    pins = [{"pin": row[0], "state": row[1]} for row in cursor.fetchall()]
+    pins = [{
+        "pin": row[0], 
+        "state": row[1],
+        "name": GPIO_PINS.get(row[0], f"GPIO {row[0]}")
+    } for row in cursor.fetchall()]
     conn.close()
     
     return {"pins": pins}
@@ -320,7 +336,7 @@ async def get_pins(current_user: dict = Depends(verify_token)):
 @app.post("/api/gpio/control")
 async def control_gpio(control: GPIOControl, current_user: dict = Depends(verify_token)):
     """Control a GPIO pin"""
-    if control.pin not in GPIO_PINS:
+    if control.pin not in GPIO_PINS.keys():
         raise HTTPException(status_code=400, detail="Invalid pin number")
     
     if control.state not in [0, 1]:

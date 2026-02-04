@@ -319,20 +319,21 @@
         /* GPIO Pins Grid */
         .gpio-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
 
         .gpio-pin {
             background: var(--bg-card);
             border: 2px solid var(--border-color);
             border-radius: 16px;
-            padding: 1.5rem;
-            text-align: center;
+            padding: 2rem 1.5rem;
             transition: all 0.3s ease;
-            cursor: pointer;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .gpio-pin::before {
@@ -366,11 +367,17 @@
             transform: scaleX(1);
         }
 
+        .pin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
         .pin-number {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 900;
             font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 0.5rem;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -382,10 +389,93 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 0.75rem;
         }
 
-        .pin-state {
+        .device-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0.5rem 0;
+            line-height: 1.3;
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .toggle-switch:hover .toggle-slider {
+            border-color: var(--accent-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+        }
+
+        .pin-state-text {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
@@ -396,6 +486,8 @@
             font-weight: 700;
             text-transform: uppercase;
             font-family: 'JetBrains Mono', monospace;
+            min-width: 60px;
+            justify-content: center;
         }
 
         .pin-state-indicator {
@@ -404,12 +496,20 @@
             border-radius: 50%;
         }
 
-        .pin-state.on .pin-state-indicator {
+        .pin-state-text.on {
+            color: var(--accent-primary);
+        }
+
+        .pin-state-text.on .pin-state-indicator {
             background: var(--accent-primary);
             box-shadow: 0 0 8px var(--accent-primary);
         }
 
-        .pin-state.off .pin-state-indicator {
+        .pin-state-text.off {
+            color: var(--text-muted);
+        }
+
+        .pin-state-text.off .pin-state-indicator {
             background: var(--text-muted);
         }
 
@@ -646,15 +746,29 @@
                         <div 
                             v-for="pin in gpioPins" 
                             :key="pin.pin"
-                            @click="togglePin(pin)"
                             class="gpio-pin"
                             :class="{ active: pin.state === 1 }"
                         >
-                            <div class="pin-number">{{ pin.pin }}</div>
-                            <div class="pin-label">GPIO</div>
-                            <div class="pin-state" :class="pin.state === 1 ? 'on' : 'off'">
-                                <span class="pin-state-indicator"></span>
-                                {{ pin.state === 1 ? 'ON' : 'OFF' }}
+                            <div class="pin-header">
+                                <div class="pin-number">{{ pin.pin }}</div>
+                                <div class="pin-state-text" :class="pin.state === 1 ? 'on' : 'off'">
+                                    <span class="pin-state-indicator"></span>
+                                    {{ pin.state === 1 ? 'ON' : 'OFF' }}
+                                </div>
+                            </div>
+                            <div class="pin-label">GPIO PIN</div>
+                            <div class="device-name">{{ pin.name }}</div>
+                            
+                            <div class="toggle-container">
+                                <span class="toggle-label">Power</span>
+                                <label class="toggle-switch">
+                                    <input 
+                                        type="checkbox" 
+                                        :checked="pin.state === 1"
+                                        @change="togglePin(pin)"
+                                    >
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -894,21 +1008,21 @@
                             const pin = this.gpioPins.find(p => p.pin === data.pin);
                             if (pin) {
                                 pin.state = data.state;
-                            }
-                            
-                            // Add to activity log
-                            this.activityLogs.unshift({
-                                id: Date.now(),
-                                username: data.user,
-                                action: 'GPIO_CONTROL',
-                                pin: data.pin,
-                                state: data.state === 1 ? 'HIGH' : 'LOW',
-                                timestamp: new Date().toISOString()
-                            });
-                            
-                            // Keep only last 50 logs
-                            if (this.activityLogs.length > 50) {
-                                this.activityLogs = this.activityLogs.slice(0, 50);
+                                
+                                // Add to activity log
+                                this.activityLogs.unshift({
+                                    id: Date.now(),
+                                    username: data.user,
+                                    action: 'GPIO_CONTROL',
+                                    pin: data.pin,
+                                    state: data.state === 1 ? 'HIGH' : 'LOW',
+                                    timestamp: new Date().toISOString()
+                                });
+                                
+                                // Keep only last 50 logs
+                                if (this.activityLogs.length > 50) {
+                                    this.activityLogs = this.activityLogs.slice(0, 50);
+                                }
                             }
                         }
                     };
@@ -941,13 +1055,19 @@
                 
                 formatLogAction(log) {
                     if (log.action === 'GPIO_CONTROL') {
-                        return `${log.username} controlled GPIO ${log.pin}`;
+                        const deviceName = this.getDeviceName(log.pin);
+                        return `${log.username} controlled ${deviceName}`;
                     } else if (log.action === 'LOGIN') {
                         return `${log.username} logged in`;
                     } else if (log.action === 'REGISTER') {
                         return `${log.username} registered`;
                     }
                     return log.action;
+                },
+                
+                getDeviceName(pin) {
+                    const device = this.gpioPins.find(p => p.pin === pin);
+                    return device ? device.name : `GPIO ${pin}`;
                 },
                 
                 getLogIcon(action) {
