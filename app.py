@@ -6,7 +6,7 @@ from flask_jwt_extended import (
 )
 from flask_socketio import SocketIO
 
-from gpio import get_pins_state, set_pin
+from gpio import get_pins_state, set_pin, init_gpio
 from auth import create_user, verify_user
 from db import init_db, log_action, get_logs
 
@@ -87,6 +87,7 @@ def ws_connect():
     print("WebSocket connected")
 
 if __name__ == "__main__":
+    init_gpio()
     socketio.run(app, host="0.0.0.0", port=8000)
 
 

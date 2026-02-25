@@ -12,8 +12,11 @@ GPIO_CONFIG = {
     29: {"name": "Spare"},
 }
 
+def init_gpio():
+  for pin in GPIO_CONFIG:
+    GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
+
 def set_pin(pin, state):
-  GPIO.setup(pin, GPIO.OUT)
   GPIO.output(pin, state)
   return True
 
