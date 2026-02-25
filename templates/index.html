@@ -806,11 +806,16 @@
 
         createApp({
             data() {
+
+                const { protocol, hostname, port } = window.location;
+
+                const httpBase = `${protocol}//${hostname}${port ? ':' + port : ''}`;
+                const wsProtocol = protocol === 'https:' ? 'wss:' : 'ws:';
                 return {
                     // API Configuration
-                    apiUrl: 'http://localhost:8000',
-                    wsUrl: 'ws://localhost:8000/ws',
-                    
+                    apiUrl: httpBase,
+                    wsUrl: `${wsProtocol}//${hostname}${port ? ':' + port : ''}/ws`,
+
                     // Auth State
                     isAuthenticated: false,
                     token: null,
