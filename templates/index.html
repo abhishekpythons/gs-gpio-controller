@@ -809,13 +809,10 @@
             data() {
 
                 const { protocol, hostname, port } = window.location;
-
                 const httpBase = `${protocol}//${hostname}${port ? ':' + port : ''}`;
-                const wsProtocol = protocol === 'https:' ? 'wss:' : 'ws:';
                 return {
                     // API Configuration
                     apiUrl: httpBase,
-                    wsUrl: `${wsProtocol}//${hostname}${port ? ':' + port : ''}/ws`,
 
                     // Auth State
                     isAuthenticated: false,
@@ -999,56 +996,50 @@
                 },
                 
                 connectWebSocket() {
-                    this.ws = new WebSocket(this.wsUrl);
-                    
-                    this.ws.onopen = () => {
+                    if (this.socket) {
+                        this.socket.disconnect();
+                    }
+
+                    this.socket = io(); // same origin, no URL, no CORS
+
+                    this.socket.on("connect", () => {
                         this.wsConnected = true;
-                        console.log('WebSocket connected');
-                    };
-                    
-                    this.ws.onmessage = (event) => {
-                        const data = JSON.parse(event.data);
-                        
-                        if (data.type === 'gpio_update') {
-                            // Update pin state
-                            const pin = this.gpioPins.find(p => p.pin === data.pin);
-                            if (pin) {
-                                pin.state = data.state;
-                                
-                                // Add to activity log
-                                this.activityLogs.unshift({
-                                    id: Date.now(),
-                                    username: data.user,
-                                    action: 'GPIO_CONTROL',
-                                    pin: data.pin,
-                                    state: data.state === 1 ? 'HIGH' : 'LOW',
-                                    timestamp: new Date().toISOString()
-                                });
-                                
-                                // Keep only last 50 logs
-                                if (this.activityLogs.length > 50) {
-                                    this.activityLogs = this.activityLogs.slice(0, 50);
-                                }
+                        console.log("Socket.IO connected");
+                    });
+
+                    this.socket.on("gpio_update", (data) => {
+                        // Update pin state
+                        const pin = this.gpioPins.find(p => p.pin === data.pin);
+                        if (pin) {
+                            pin.state = data.state;
+
+                            // Add to activity log
+                            this.activityLogs.unshift({
+                                id: Date.now(),
+                                username: data.user,
+                                action: 'GPIO_CONTROL',
+                                pin: data.pin,
+                                state: data.state === 1 ? 'HIGH' : 'LOW',
+                                timestamp: new Date().toISOString()
+                            });
+
+                            // Keep only last 50 logs
+                            if (this.activityLogs.length > 50) {
+                                this.activityLogs.length = 50;
                             }
                         }
-                    };
-                    
-                    this.ws.onclose = () => {
+                    });
+
+                    this.socket.on("disconnect", () => {
                         this.wsConnected = false;
-                        console.log('WebSocket disconnected');
-                        
-                        // Reconnect after 3 seconds
-                        setTimeout(() => {
-                            if (this.isAuthenticated) {
-                                this.connectWebSocket();
-                            }
-                        }, 3000);
-                    };
-                    
-                    this.ws.onerror = (error) => {
-                        console.error('WebSocket error:', error);
-                    };
+                        console.log("Socket.IO disconnected");
+                    });
+
+                    this.socket.on("connect_error", (err) => {
+                        console.error("Socket.IO error:", err.message);
+                    });
                 },
+
                 
                 logout() {
                     localStorage.removeItem('gpio_token');
