@@ -664,7 +664,7 @@
                 <h2 class="auth-title">Welcome Back</h2>
                 <p class="auth-subtitle">Sign in to control your Raspberry Pi GPIO</p>
                 
-                <div v-if="authError" class="error-message">{{ authError }}</div>
+                <div v-if="authError" class="error-message">[[ authError ]]</div>
                 
                 <form @submit.prevent="login">
                     <div class="form-group">
@@ -688,7 +688,7 @@
                 <h2 class="auth-title">Create Account</h2>
                 <p class="auth-subtitle">Register to access GPIO controller</p>
                 
-                <div v-if="authError" class="error-message">{{ authError }}</div>
+                <div v-if="authError" class="error-message">[[ authError ]]</div>
                 
                 <form @submit.prevent="register">
                     <div class="form-group">
@@ -726,7 +726,7 @@
                 <div class="user-info">
                     <div class="connection-status">
                         <span class="status-dot" :class="wsConnected ? 'connected' : 'disconnected'"></span>
-                        <span>{{ wsConnected ? 'LIVE' : 'OFFLINE' }}</span>
+                        <span>[[ wsConnected ? 'LIVE' : 'OFFLINE' ]]</span>
                     </div>
                     <button @click="logout" class="btn-logout">Logout</button>
                 </div>
@@ -750,14 +750,14 @@
                             :class="{ active: pin.state === 1 }"
                         >
                             <div class="pin-header">
-                                <div class="pin-number">{{ pin.pin }}</div>
+                                <div class="pin-number">[[ pin.pin ]]</div>
                                 <div class="pin-state-text" :class="pin.state === 1 ? 'on' : 'off'">
                                     <span class="pin-state-indicator"></span>
-                                    {{ pin.state === 1 ? 'ON' : 'OFF' }}
+                                    [[ pin.state === 1 ? 'ON' : 'OFF' ]]
                                 </div>
                             </div>
                             <div class="pin-label">GPIO PIN</div>
-                            <div class="device-name">{{ pin.name }}</div>
+                            <div class="device-name">[[ pin.name ]]</div>
                             
                             <div class="toggle-container">
                                 <span class="toggle-label">Power</span>
@@ -785,14 +785,14 @@
                     <div class="activity-log">
                         <div v-for="log in activityLogs" :key="log.id" class="log-entry">
                             <div class="log-icon" :class="log.action.toLowerCase()">
-                                {{ getLogIcon(log.action) }}
+                                [[ getLogIcon(log.action) ]]
                             </div>
                             <div class="log-content">
-                                <div class="log-action">{{ formatLogAction(log) }}</div>
+                                <div class="log-action">[[ formatLogAction(log) ]]</div>
                                 <div class="log-details" v-if="log.pin">
-                                    Pin {{ log.pin }} → {{ log.state }}
+                                    Pin [[ log.pin ]] → [[ log.state ]]
                                 </div>
-                                <div class="log-time">{{ formatTime(log.timestamp) }}</div>
+                                <div class="log-time">[[ formatTime(log.timestamp) ]]</div>
                             </div>
                         </div>
                     </div>
@@ -805,6 +805,7 @@
         const { createApp } = Vue;
 
         createApp({
+            delimeter: ['[[', ']]'],
             data() {
 
                 const { protocol, hostname, port } = window.location;
