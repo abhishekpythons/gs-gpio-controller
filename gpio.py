@@ -1,6 +1,6 @@
-from gpiozero import LED
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BOARD)
 
-# Define GPIO pins you want to control
 GPIO_CONFIG = {
     35: {"name": "NuC PC"},
     37: {"name": "SDR RF Frontend"},
@@ -12,23 +12,19 @@ GPIO_CONFIG = {
     29: {"name": "Spare"},
 }
 
-gpio_devices = {
-    pin: LED(pin) for pin in GPIO_CONFIG
-}
+def set_pin(pin, state):
+  GPIO.setup(pin, GPIO.OUT)
+  GPIO.output(pin, state)
+  return True
 
 def get_pins_state():
-    return [
-        {
-            "pin": pin,
-            "name": GPIO_CONFIG[pin]["name"],
-            "state": 1 if dev.is_lit else 0
-        }
-        for pin, dev in gpio_devices.items()
-    ]
-
-def set_pin(pin, state):
-    dev = gpio_devices.get(pin)
-    if not dev:
-        return False
-    dev.on() if state else dev.off()
-    return True
+  states = []
+  for pin in GPIO_CONFIG:
+    GPIO.setup(pin, GPIO.OUT)
+    state = GPIO.input(pin)
+    states.append({
+      "pin": pin,
+      "name": GPIO_CONFIG[pin]["name"],
+      "state": state
+    })
+  return states

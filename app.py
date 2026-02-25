@@ -1,7 +1,4 @@
-import eventlet
-eventlet.monkey_patch()
-
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from flask_jwt_extended import (
     JWTManager, create_access_token,
@@ -21,6 +18,10 @@ jwt = JWTManager(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 init_db()
+
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 @app.post("/api/register")
 def register():
@@ -87,3 +88,7 @@ def ws_connect():
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=8000)
+
+
+
+
